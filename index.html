@@ -8,7 +8,35 @@
     <title>CS322 A2</title>
 </head>
 <body>
-    <input type="file" id="sound" accept="audio/*">
-    <audio id="audioPlayer" controls></audio>
+    <div><audio id="audioPlayer" controls></audio></div>
+    
+    <div><input type="file" id="sound" accept="audio/*"></div>
+
+    <h2>Filters</h2>
+    <div>
+    <input type="checkbox" id="highpass" name="filter" value="highpass" />
+    <label for="highpass">Highpass Filter</label>
+    </div>
+
+    <div>
+    <input type="checkbox" id="lowpass" name="filter" value="lowpass" />
+    <label for="lowpass">Lowpass Filter</label>
+    </div>
+
+    <div>
+    <input type="checkbox" id="bandpass" name="filter" value="bandpass" />
+    <label for="bandpass">Bandpass Filter</label>
+    </div>
+
+    <div>
+    <input type="checkbox" id="highshelf" name="filter" value="highshelf" />
+    <label for="highshelf">Highshelf Filter</label>
+    </div>
+
+    <div>
+    <input type="checkbox" id="lowshelf" name="filter" value="lowshelf" />
+    <label for="lowshelf">Lowshelf Filter</label>
+    </div>
+
 </body>
 </html> 

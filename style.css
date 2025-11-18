@@ -1,0 +1,18 @@
+body {
+    margin: auto;
+    width: 80%;
+    text-align: center;
+}
+
+#audioPlayer
+{
+    margin-top: 25px;
+    margin-bottom: 25px;
+}
+
+#sound
+{
+    margin-top: 15px;
+    margin-bottom: 15px;
+    margin-left: 80px;
+}
