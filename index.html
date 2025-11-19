@@ -16,27 +16,35 @@
     <div>
     <input type="checkbox" id="highpass" name="filter" value="highpass" />
     <label for="highpass">Highpass Filter</label>
+    <input type="range" max="40" min="-40" value="0" id="highpassGain"/>
     </div>
 
     <div>
     <input type="checkbox" id="lowpass" name="filter" value="lowpass" />
     <label for="lowpass">Lowpass Filter</label>
+    <input type="range" min="-40" max="40" value="0" id="lowpassGain"/>
+    <p>Value: <span id="demo"></span></p>
     </div>
 
     <div>
     <input type="checkbox" id="bandpass" name="filter" value="bandpass" />
     <label for="bandpass">Bandpass Filter</label>
+    <input type="range" max="40" min="-40" value="0" id="bandpassGain"/>
     </div>
 
     <div>
     <input type="checkbox" id="highshelf" name="filter" value="highshelf" />
     <label for="highshelf">Highshelf Filter</label>
+    <input type="range" max="40" min="-40" value="0" id="highshelfGain"/>
     </div>
 
     <div>
     <input type="checkbox" id="lowshelf" name="filter" value="lowshelf" />
     <label for="lowshelf">Lowshelf Filter</label>
+    <input type="range" max="40" min="-40" value="0" id="lowshelfGain"/>
     </div>
+
+    <div class="slidecontainer">
 
 </body>
 </html> 
