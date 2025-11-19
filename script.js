@@ -31,6 +31,7 @@ var lowshelfGain = lowshelfSlide.value;
 var lowshelfValue = document.getElementById("lowshelfValue");
 lowshelfValue.innerHTML = lowshelfSlide.value;
 
+// Audio context and node setup from provided biquad filter files on Moodle
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const source = audioCtx.createMediaElementSource(audio);
 const analyser = audioCtx.createAnalyser();
