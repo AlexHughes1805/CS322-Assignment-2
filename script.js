@@ -8,17 +8,28 @@ const lowshelfCheck = document.getElementById("lowshelf");
 
 var highpassSlide = document.getElementById("highpassGain");
 var highpassGain = highpassSlide.value;
+var highpassValue = document.getElementById("highpassValue");
+highpassValue.innerHTML = highpassSlide.value;
+
 var lowpassSlide = document.getElementById("lowpassGain");
 var lowpassGain = lowpassSlide.value;
+var lowpassValue = document.getElementById("lowpassValue");
+lowpassValue.innerHTML = lowpassSlide.value;
+
 var bandpassSlide = document.getElementById("bandpassGain");
 var bandpassGain = bandpassSlide.value;
+var bandpassValue = document.getElementById("bandpassValue");
+bandpassValue.innerHTML = bandpassSlide.value;
+
 var highshelfSlide = document.getElementById("highshelfGain");
 var highshelfGain = highshelfSlide.value;
+var highshelfValue = document.getElementById("highshelfValue");
+highshelfValue.innerHTML = highshelfSlide.value;
+
 var lowshelfSlide = document.getElementById("lowshelfGain");
 var lowshelfGain = lowshelfSlide.value;
-
-var output = document.getElementById("demo");
-output.innerHTML = lowpassSlide.value;
+var lowshelfValue = document.getElementById("lowshelfValue");
+lowshelfValue.innerHTML = lowshelfSlide.value;
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const source = audioCtx.createMediaElementSource(audio);
@@ -59,22 +70,29 @@ fileInput.addEventListener("change", (event) => {
     }
 });
 
+highpassSlide.addEventListener("input", () => {
+    highpassGain = Number(highpassSlide.value);
+    highpassFilter.frequency.value = highpassGain;
+    highpassValue.innerHTML = `${highpassGain}`;
+});
+
 // enable highpass filter when highpass checkbox is ticked and so on and so forth
 highpassCheck.addEventListener("change", () => {
     if (highpassCheck.checked) {
         highpassFilter.type = "highpass";
-        highpassFilter.gain.value = highpassGain;
     }
     else{
         highpassFilter.type = "allpass";
     }
 });
 
+lowpassSlide.addEventListener("input", () => {
+    lowpassGain = Number(lowpassSlide.value);
+    lowpassFilter.frequency.value = lowpassGain;
+    lowpassValue.innerHTML = `${lowpassGain}`;
+});
+
 lowpassCheck.addEventListener("change", () => {
-    lowpassSlide.oninput = function() {
-        output.innerHTML = this.value;
-    }
-    output.innerHTML = lowpassSlide.value;
     if (lowpassCheck.checked) {
         lowpassFilter.type = "lowpass";
     }
@@ -83,14 +101,40 @@ lowpassCheck.addEventListener("change", () => {
     }
 });
 
+bandpassSlide.addEventListener("input", () => {
+    bandpassGain = Number(bandpassSlide.value);
+    bandpassFilter.frequency.value = bandpassGain;
+    bandpassValue.innerHTML = `${bandpassGain}`;
+});
+
 bandpassCheck.addEventListener("change", () => {
     if (bandpassCheck.checked) {
         bandpassFilter.type = "bandpass";
-        bandpassFilter.gain.value = bandpassGain;
     }
     else{
         bandpassFilter.type = "allpass";
     }
+});
+
+highshelfSlide.addEventListener("input", () => {
+    highshelfGain = Number(highshelfSlide.value);
+    highshelfFilter.gain.value = highshelfGain;
+    highshelfValue.innerHTML = `${highshelfGain}`;
+});
+
+highshelfCheck.addEventListener("change", () => {
+    if (highshelfCheck.checked) {
+        highshelfFilter.type = "highshelf";
+    }
+    else{
+        highpassFilter.type = "allpass";
+    }
+});
+
+lowshelfSlide.addEventListener("input", () => {
+    lowshelfGain = Number(lowshelfSlide.value);
+    lowshelfFilter.gain.value = lowshelfGain;
+    lowshelfValue.innerHTML = `${lowshelfGain}`;
 });
 
 lowshelfCheck.addEventListener("change", () => {
@@ -99,19 +143,5 @@ lowshelfCheck.addEventListener("change", () => {
     }
     else{
         lowshelfFilter.type = "allpass";
-    }
-    while(checked == true)
-    {
-        console.log(lowpassFilter.gain.value);
-    }
-});
-
-highshelfCheck.addEventListener("change", () => {
-    if (highshelfCheck.checked) {
-        highshelfFilter.type = "highshelf";
-        highshelfFilter.gain.value = highshelfGain;
-    }
-    else{
-        highpassFilter.type = "allpass";
     }
 });

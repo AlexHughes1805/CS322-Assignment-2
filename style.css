@@ -16,3 +16,17 @@ body {
     margin-bottom: 15px;
     margin-left: 80px;
 }
+
+.parent {
+  text-align: center;
+}
+.child {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#highpassGain, #lowpassGain, #bandpassGain, #highshelfGain, #lowshelfGain {
+    width: 300px;
+    margin-left: 15px;
+    margin-right: 15px;
+}

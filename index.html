@@ -13,38 +13,50 @@
     <div><input type="file" id="sound" accept="audio/*"></div>
 
     <h2>Filters</h2>
-    <div>
-    <input type="checkbox" id="highpass" name="filter" value="highpass" />
-    <label for="highpass">Highpass Filter</label>
-    <input type="range" max="40" min="-40" value="0" id="highpassGain"/>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="highpass" name="filter" value="highpass" />
+            <label for="highpass">Highpass Filter</label>
+            <input type="range" max="40" min="-40" value="0" id="highpassGain"/>
+        </div>
+        <div class="child"><p><span id="highpassValue"></span></p></div>
+    </div>
+    
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="lowpass" name="filter" value="lowpass" />
+            <label for="lowpass">Lowpass Filter</label>
+            <input type="range" min="-40" max="40" value="0" id="lowpassGain"/>
+        </div>
+        <div class="child"><p><span id="lowpassValue"></span></p></div>
     </div>
 
-    <div>
-    <input type="checkbox" id="lowpass" name="filter" value="lowpass" />
-    <label for="lowpass">Lowpass Filter</label>
-    <input type="range" min="-40" max="40" value="0" id="lowpassGain"/>
-    <p>Value: <span id="demo"></span></p>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="bandpass" name="filter" value="bandpass" />
+            <label for="bandpass">Bandpass Filter</label>
+            <input type="range" max="40" min="-40" value="0" id="bandpassGain"/>
+        </div>
+        <div class="child"><p><span id="bandpassValue"></span></p></div>
     </div>
 
-    <div>
-    <input type="checkbox" id="bandpass" name="filter" value="bandpass" />
-    <label for="bandpass">Bandpass Filter</label>
-    <input type="range" max="40" min="-40" value="0" id="bandpassGain"/>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="highshelf" name="filter" value="highshelf" />
+            <label for="highshelf">Highshelf Filter</label>
+            <input type="range" max="40" min="-40" value="0" id="highshelfGain"/>
+        </div>
+        <div class="child"><p><span id="highshelfValue"></span></p></div>
     </div>
 
-    <div>
-    <input type="checkbox" id="highshelf" name="filter" value="highshelf" />
-    <label for="highshelf">Highshelf Filter</label>
-    <input type="range" max="40" min="-40" value="0" id="highshelfGain"/>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="lowshelf" name="filter" value="lowshelf" />
+            <label for="lowshelf">Lowshelf Filter</label>
+            <input type="range" max="40" min="-40" value="0" id="lowshelfGain"/>
+        </div>
+        <div class="child"><p><span id="lowshelfValue"></span></p></div>
     </div>
-
-    <div>
-    <input type="checkbox" id="lowshelf" name="filter" value="lowshelf" />
-    <label for="lowshelf">Lowshelf Filter</label>
-    <input type="range" max="40" min="-40" value="0" id="lowshelfGain"/>
-    </div>
-
-    <div class="slidecontainer">
 
 </body>
 </html> 
