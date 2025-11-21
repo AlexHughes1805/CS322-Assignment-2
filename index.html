@@ -58,5 +58,21 @@
         <div class="child"><p><span id="lowshelfValue"></span></p></div>
     </div>
 
+    <h2>Effects</h2>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="lowshelf" name="filter" value="oscillator" />
+            <label for="oscillator">Oscillator</label>
+            <select id="wave">
+                    <option value="sine">Sine</option>
+                    <option value="square">Square</option>
+                    <option value="sawtooth">Sawtooth</option>
+                    <option value="triangle">Triangle</option>
+            </select>
+            <input type="range" max="800" min="100" value="440" id="oscillatorFreq"/>
+        </div>
+        <div class="child"><p><span id="oscillatorValue"></span></p></div>
+    </div>
+
 </body>
 </html> 

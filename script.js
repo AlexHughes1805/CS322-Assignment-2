@@ -5,6 +5,7 @@ const lowpassCheck = document.getElementById("lowpass");
 const bandpassCheck = document.getElementById("bandpass");
 const highshelfCheck = document.getElementById("highshelf");
 const lowshelfCheck = document.getElementById("lowshelf");
+const oscillatorCheck = document.getElementById("oscillator");
 
 var highpassSlide = document.getElementById("highpassGain");
 var highpassGain = highpassSlide.value;
@@ -31,6 +32,11 @@ var lowshelfGain = lowshelfSlide.value;
 var lowshelfValue = document.getElementById("lowshelfValue");
 lowshelfValue.innerHTML = lowshelfSlide.value;
 
+var oscillatorSlide = document.getElementById("oscillatorFreq");
+var oscillatorFreq = oscillatorSlide.value;
+var oscillatorValue = document.getElementById("oscillatorValue");
+oscillatorValue.innerHTML = oscillatorSlide.value;
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const source = audioCtx.createMediaElementSource(audio);
 const analyser = audioCtx.createAnalyser();
@@ -43,6 +49,9 @@ const lowpassFilter  = audioCtx.createBiquadFilter(); lowpassFilter.type  = "all
 const bandpassFilter = audioCtx.createBiquadFilter(); bandpassFilter.type = "allpass";
 const lowshelfFilter = audioCtx.createBiquadFilter(); lowshelfFilter.type = "allpass";
 const highshelfFilter = audioCtx.createBiquadFilter(); highshelfFilter.type = "allpass";
+
+// handle each effect
+const oscillator = audioCtx.createOscillator();
 
 source.connect(analyser);
 analyser.connect(distortion);
@@ -144,4 +153,10 @@ lowshelfCheck.addEventListener("change", () => {
     else{
         lowshelfFilter.type = "allpass";
     }
+});
+
+oscillatorSlide.addEventListener("input", () => {
+    oscillatorFreq = Number(oscillatorSlide.value);
+    oscillator.frequency.value = oscillatorFreq;
+    oscillatorValue.innerHTML = `${oscillatorFreq}`;
 });
