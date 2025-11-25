@@ -36,6 +36,7 @@ var oscillatorSlide = document.getElementById("oscillatorFreq");
 var oscillatorFreq = oscillatorSlide.value;
 var oscillatorValue = document.getElementById("oscillatorValue");
 oscillatorValue.innerHTML = oscillatorSlide.value;
+var oscillatorWave = document.getElementById("wave");
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const source = audioCtx.createMediaElementSource(audio);
@@ -62,6 +63,7 @@ bandpassFilter.connect(lowshelfFilter);
 lowshelfFilter.connect(highshelfFilter);
 highshelfFilter.connect(gainNode);
 gainNode.connect(audioCtx.destination);
+oscillator.connect(gainNode).connect(analyser).connect(audioCtx.destination);
 
 // Handle file selection
 fileInput.addEventListener("change", (event) => {
@@ -160,3 +162,16 @@ oscillatorSlide.addEventListener("input", () => {
     oscillator.frequency.value = oscillatorFreq;
     oscillatorValue.innerHTML = `${oscillatorFreq}`;
 });
+
+oscillatorWave.addEventListener("change", () => {
+  oscillator.type = oscillatorWave.value;
+})
+
+oscillatorCheck.addEventListener("change", () => {
+    if (oscillatorCheck.checked) {
+        oscillator.start(audioCtx.currentTime);
+    }
+    else {
+        oscillator.stop();
+    }
+})
