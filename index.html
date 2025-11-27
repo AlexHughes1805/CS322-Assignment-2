@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
-    <title>CS322 A2</title>
 </head>
 <body>
+    <img src="banner.png" alt="Banner" id="banner">
+    <p>CS322 Assignment 2</p>
     <div><audio id="audioPlayer" controls></audio></div>
     
     <div><input type="file" id="sound" accept="audio/*"></div>
-
-    <h2>Filters</h2>
+    <h1>Filters</h1>
     <div class="parent">
         <div class="child">
             <input type="checkbox" id="highpass" name="filter" value="highpass" />
-            <label for="highpass">Highpass Filter</label>
-            <input type="range" max="40" min="-40" value="0" id="highpassGain"/>
+            <label for="highpass">Highpass Filter (Hz)</label>
+            <input type="range" min="20" max="5000" value="200" id="highpassGain"/>
         </div>
         <div class="child"><p><span id="highpassValue"></span></p></div>
     </div>
@@ -25,8 +25,8 @@
     <div class="parent">
         <div class="child">
             <input type="checkbox" id="lowpass" name="filter" value="lowpass" />
-            <label for="lowpass">Lowpass Filter</label>
-            <input type="range" min="-40" max="40" value="0" id="lowpassGain"/>
+            <label for="lowpass">Lowpass Filter (Hz)</label>
+            <input type="range" min="200" max="20000" value="5000" id="lowpassGain"/>
         </div>
         <div class="child"><p><span id="lowpassValue"></span></p></div>
     </div>
@@ -34,8 +34,8 @@
     <div class="parent">
         <div class="child">
             <input type="checkbox" id="bandpass" name="filter" value="bandpass" />
-            <label for="bandpass">Bandpass Filter</label>
-            <input type="range" max="40" min="-40" value="0" id="bandpassGain"/>
+            <label for="bandpass">Bandpass Filter (Hz)</label>
+            <input type="range" min="20" max="20000" value="1000" id="bandpassGain"/>
         </div>
         <div class="child"><p><span id="bandpassValue"></span></p></div>
     </div>
@@ -43,8 +43,8 @@
     <div class="parent">
         <div class="child">
             <input type="checkbox" id="highshelf" name="filter" value="highshelf" />
-            <label for="highshelf">Highshelf Filter</label>
-            <input type="range" max="40" min="-40" value="0" id="highshelfGain"/>
+            <label for="highshelf">Highshelf Filter (dB)</label>
+            <input type="range" min="-40" max="40" value="0" id="highshelfGain"/>
         </div>
         <div class="child"><p><span id="highshelfValue"></span></p></div>
     </div>
@@ -52,16 +52,20 @@
     <div class="parent">
         <div class="child">
             <input type="checkbox" id="lowshelf" name="filter" value="lowshelf" />
-            <label for="lowshelf">Lowshelf Filter</label>
-            <input type="range" max="40" min="-40" value="0" id="lowshelfGain"/>
+            <label for="lowshelf">Lowshelf Filter (dB)</label>
+            <input type="range" min="-40" max="40" value="0" id="lowshelfGain"/>
         </div>
         <div class="child"><p><span id="lowshelfValue"></span></p></div>
     </div>
 
-    <h2>Effects</h2>
+    <div class="parent">
+        <button id="resetFilters">Reset Filters</button>
+    </div>
+
+    <h1>Effects</h1>
     <div class="parent">
         <div class="child">
-            <input type="checkbox" id="lowshelf" name="filter" value="oscillator" />
+            <input type="checkbox" id="oscillator" name="filter" value="oscillator" />
             <label for="oscillator">Oscillator</label>
             <select id="wave">
                     <option value="sine">Sine</option>
@@ -74,5 +78,16 @@
         <div class="child"><p><span id="oscillatorValue"></span></p></div>
     </div>
 
+
+    <div class="visualiser-container">
+        <div class="visualiser-box">
+            <h1>Visualizer</h1>
+            <canvas id="visualiser" width="400" height="200"></canvas>
+        </div>
+        <div class="visualiser-box">
+            <h1>Frequency Bar Graph</h1>
+            <canvas id="frequencyGraph" width="400" height="200"></canvas>
+        </div>
+    </div>
 </body>
 </html> 

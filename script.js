@@ -1,5 +1,8 @@
 const audio = document.getElementById("audioPlayer");
 const fileInput = document.getElementById("sound");
+
+
+
 const highpassCheck = document.getElementById("highpass");
 const lowpassCheck = document.getElementById("lowpass");
 const bandpassCheck = document.getElementById("bandpass");
@@ -56,8 +59,16 @@ const highshelfFilter = audioCtx.createBiquadFilter(); highshelfFilter.type = "a
 // handle each effect
 const oscillator = audioCtx.createOscillator();
 
-source.connect(analyser);
-analyser.connect(distortion);
+// Set initial filter values
+highpassFilter.frequency.value = 200;
+lowpassFilter.frequency.value = 5000;
+bandpassFilter.frequency.value = 1000;
+highshelfFilter.frequency.value = 3000; // Fixed frequency for shelf filters
+lowshelfFilter.frequency.value = 300;   // Fixed frequency for shelf filters
+
+// Audio chain: source -> filters -> analyser -> destination
+// Analyser is after filters so visualizers show filtered audio
+source.connect(distortion);
 distortion.connect(highpassFilter);
 highpassFilter.connect(lowpassFilter);
 lowpassFilter.connect(bandpassFilter);
@@ -140,7 +151,7 @@ highshelfCheck.addEventListener("change", () => {
         highshelfFilter.type = "highshelf";
     }
     else{
-        highpassFilter.type = "allpass";
+        highshelfFilter.type = "allpass";
     }
 });
 
@@ -177,3 +188,112 @@ oscillatorCheck.addEventListener("change", () => {
         oscillator.stop();
     }
 })
+
+document.getElementById("resetFilters").addEventListener("click", () => {
+    highpassCheck.checked = false;
+    lowpassCheck.checked = false;
+    bandpassCheck.checked = false;
+    highshelfCheck.checked = false;
+    lowshelfCheck.checked = false;
+
+    highpassFilter.type = "allpass";
+    lowpassFilter.type = "allpass";
+    bandpassFilter.type = "allpass";
+    highshelfFilter.type = "allpass";
+    lowshelfFilter.type = "allpass";
+
+    highpassSlide.value = 200;
+    lowpassSlide.value = 5000;
+    bandpassSlide.value = 1000;
+    highshelfSlide.value = 0;
+    lowshelfSlide.value = 0;
+
+    highpassFilter.frequency.value = 200;
+    lowpassFilter.frequency.value = 5000;
+    bandpassFilter.frequency.value = 1000;
+    highshelfFilter.gain.value = 0;
+    lowshelfFilter.gain.value = 0;
+
+    highpassValue.innerHTML = "200";
+    lowpassValue.innerHTML = "5000";
+    bandpassValue.innerHTML = "1000";
+    highshelfValue.innerHTML = "0";
+    lowshelfValue.innerHTML = "0";
+});
+
+// Waveform visualiser and bar graph setup
+const visualiser = document.getElementById("visualizer");
+const visualiserCtx = visualiser.getContext("2d");
+const WIDTH = visualiser.width;
+const HEIGHT = visualiser.height;
+const frequencyGraph = document.getElementById("frequencyGraph");
+const frequencyGraphCtx = frequencyGraph.getContext("2d");
+const FREQ_WIDTH = frequencyGraph.width;
+const FREQ_HEIGHT = frequencyGraph.height;
+
+analyser.fftSize = 2048;
+const bufferLength = analyser.frequencyBinCount;
+const dataArray = new Uint8Array(bufferLength);
+const frequencyDataArray = new Uint8Array(bufferLength);
+
+visualiserCtx.clearRect(0, 0, WIDTH, HEIGHT);
+
+function drawWaveform() {
+  requestAnimationFrame(drawWaveform);
+  analyser.getByteTimeDomainData(dataArray);
+  visualiserCtx.fillStyle = "rgb(0, 0, 0)";
+  visualiserCtx.fillRect(0, 0, WIDTH, HEIGHT);
+  visualiserCtx.lineWidth = 2;
+  visualiserCtx.strokeStyle = "rgb(255, 105, 180)";
+  visualiserCtx.beginPath();
+  const sliceWidth = WIDTH / bufferLength;
+  let x = 0;
+  for (let i = 0; i < bufferLength; i++) {
+    const v = dataArray[i] / 128.0;
+    const y = v * (HEIGHT / 2);
+
+    if (i === 0) {
+      visualiserCtx.moveTo(x, y);
+    } else {
+      visualiserCtx.lineTo(x, y);
+    }
+
+    x += sliceWidth;
+  }
+
+  visualiserCtx.lineTo(WIDTH, HEIGHT / 2);
+  visualiserCtx.stroke();
+}
+
+drawWaveform();
+
+function drawFrequencyGraph() {
+    requestAnimationFrame(drawFrequencyGraph);
+
+    analyser.getByteFrequencyData(frequencyDataArray);
+
+    frequencyGraphCtx.fillStyle = "rgb(0, 0, 0)";
+    frequencyGraphCtx.fillRect(0, 0, FREQ_WIDTH, FREQ_HEIGHT);
+
+    const barCount = 40;
+    const barWidth = (FREQ_WIDTH / barCount) - 2;
+    const step = Math.floor(bufferLength / barCount);
+
+    for (let i = 0; i < barCount; i++) {
+        const dataIndex = i * step;
+        const barHeight = (frequencyDataArray[dataIndex] / 255) * FREQ_HEIGHT;
+
+        const ratio = i / barCount;
+        const r = Math.floor(0 + ratio * 255);
+        const g = Math.floor(212 - ratio * 105);
+        const b = Math.floor(255 - ratio * 98);
+        frequencyGraphCtx.fillStyle = `rgb(${r}, ${g}, ${b})`;
+
+        const x = i * (barWidth + 2);
+        const y = FREQ_HEIGHT - barHeight;
+
+        frequencyGraphCtx.fillRect(x, y, barWidth, barHeight);
+    }
+}
+
+drawFrequencyGraph();
