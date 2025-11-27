@@ -56,18 +56,17 @@ const bandpassFilter = audioCtx.createBiquadFilter(); bandpassFilter.type = "all
 const lowshelfFilter = audioCtx.createBiquadFilter(); lowshelfFilter.type = "allpass";
 const highshelfFilter = audioCtx.createBiquadFilter(); highshelfFilter.type = "allpass";
 
-// handle each effect
-const oscillator = audioCtx.createOscillator();
+let oscillator = null;
+const oscillatorGain = audioCtx.createGain();
+oscillatorGain.gain.value = 0;
 
-// Set initial filter values
 highpassFilter.frequency.value = 200;
 lowpassFilter.frequency.value = 5000;
 bandpassFilter.frequency.value = 1000;
-highshelfFilter.frequency.value = 3000; // Fixed frequency for shelf filters
-lowshelfFilter.frequency.value = 300;   // Fixed frequency for shelf filters
+highshelfFilter.frequency.value = 3000;
+lowshelfFilter.frequency.value = 300;
 
-// Audio chain: source -> filters -> analyser -> destination
-// Analyser is after filters so visualizers show filtered audio
+
 source.connect(distortion);
 distortion.connect(highpassFilter);
 highpassFilter.connect(lowpassFilter);
@@ -75,8 +74,9 @@ lowpassFilter.connect(bandpassFilter);
 bandpassFilter.connect(lowshelfFilter);
 lowshelfFilter.connect(highshelfFilter);
 highshelfFilter.connect(gainNode);
-gainNode.connect(audioCtx.destination);
-oscillator.connect(gainNode).connect(analyser).connect(audioCtx.destination);
+gainNode.connect(analyser);
+analyser.connect(audioCtx.destination);
+oscillatorGain.connect(gainNode);
 
 // Handle file selection
 fileInput.addEventListener("change", (event) => {
@@ -172,20 +172,34 @@ lowshelfCheck.addEventListener("change", () => {
 
 oscillatorSlide.addEventListener("input", () => {
     oscillatorFreq = Number(oscillatorSlide.value);
-    oscillator.frequency.value = oscillatorFreq;
+    if (oscillator) {
+        oscillator.frequency.value = oscillatorFreq;
+    }
     oscillatorValue.innerHTML = `${oscillatorFreq}`;
 });
 
 oscillatorWave.addEventListener("change", () => {
-  oscillator.type = oscillatorWave.value;
+    if (oscillator) {
+        oscillator.type = oscillatorWave.value;
+    }
 })
 
 oscillatorCheck.addEventListener("change", () => {
     if (oscillatorCheck.checked) {
-        oscillator.start(audioCtx.currentTime);
+        oscillator = audioCtx.createOscillator();
+        oscillator.type = oscillatorWave.value;
+        oscillator.frequency.value = oscillatorFreq;
+        oscillator.connect(oscillatorGain);
+        oscillatorGain.gain.value = 1;
+        oscillator.start();
     }
     else {
-        oscillator.stop();
+        if (oscillator) {
+            oscillator.stop();
+            oscillator.disconnect();
+            oscillator = null;
+        }
+        oscillatorGain.gain.value = 0;
     }
 })
 
@@ -222,7 +236,7 @@ document.getElementById("resetFilters").addEventListener("click", () => {
 });
 
 // Waveform visualiser and bar graph setup
-const visualiser = document.getElementById("visualizer");
+const visualiser = document.getElementById("visualiser");
 const visualiserCtx = visualiser.getContext("2d");
 const WIDTH = visualiser.width;
 const HEIGHT = visualiser.height;
