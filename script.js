@@ -38,6 +38,8 @@ var oscillatorValue = document.getElementById("oscillatorValue");
 oscillatorValue.innerHTML = oscillatorSlide.value;
 var oscillatorWave = document.getElementById("wave");
 
+// Audio context and node setup from provided biquad filter files on Moodle
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const source = audioCtx.createMediaElementSource(audio);
 const analyser = audioCtx.createAnalyser();
