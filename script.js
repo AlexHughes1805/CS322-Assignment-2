@@ -41,6 +41,11 @@ var oscillatorValue = document.getElementById("oscillatorValue");
 oscillatorValue.innerHTML = oscillatorSlide.value;
 var oscillatorWave = document.getElementById("wave");
 
+var oscillatorGainSlide = document.getElementById("oscillatorGain");
+var oscillatorGainAmount = Number(oscillatorGainSlide.value);
+var oscillatorGainDisplay = document.getElementById("oscillatorGainValue");
+oscillatorGainDisplay.innerHTML = oscillatorGainSlide.value;
+
 // Audio context and node setup from provided biquad filter files on Moodle
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -59,12 +64,6 @@ const highshelfFilter = audioCtx.createBiquadFilter(); highshelfFilter.type = "a
 let oscillator = null;
 const oscillatorGain = audioCtx.createGain();
 oscillatorGain.gain.value = 0;
-
-highpassFilter.frequency.value = 200;
-lowpassFilter.frequency.value = 5000;
-bandpassFilter.frequency.value = 1000;
-highshelfFilter.frequency.value = 3000;
-lowshelfFilter.frequency.value = 300;
 
 
 source.connect(distortion);
@@ -182,7 +181,15 @@ oscillatorWave.addEventListener("change", () => {
     if (oscillator) {
         oscillator.type = oscillatorWave.value;
     }
-})
+});
+
+oscillatorGainSlide.addEventListener("input", () => {
+    oscillatorGainAmount = Number(oscillatorGainSlide.value);
+    oscillatorGainDisplay.innerHTML = oscillatorGainAmount;
+    if (oscillatorCheck.checked) {
+        oscillatorGain.gain.value = oscillatorGainAmount;
+    }
+});
 
 oscillatorCheck.addEventListener("change", () => {
     if (oscillatorCheck.checked) {
@@ -190,7 +197,7 @@ oscillatorCheck.addEventListener("change", () => {
         oscillator.type = oscillatorWave.value;
         oscillator.frequency.value = oscillatorFreq;
         oscillator.connect(oscillatorGain);
-        oscillatorGain.gain.value = 1;
+        oscillatorGain.gain.value = oscillatorGainAmount;
         oscillator.start();
     }
     else {
@@ -203,7 +210,7 @@ oscillatorCheck.addEventListener("change", () => {
     }
 })
 
-document.getElementById("resetFilters").addEventListener("click", () => {
+function resetFilters() {
     highpassCheck.checked = false;
     lowpassCheck.checked = false;
     bandpassCheck.checked = false;
@@ -233,7 +240,10 @@ document.getElementById("resetFilters").addEventListener("click", () => {
     bandpassValue.innerHTML = "1000";
     highshelfValue.innerHTML = "0";
     lowshelfValue.innerHTML = "0";
-});
+}
+
+document.getElementById("resetFilters").addEventListener("click", resetFilters);
+resetFilters();
 
 // Waveform visualiser and bar graph setup
 const visualiser = document.getElementById("visualiser");
@@ -311,3 +321,76 @@ function drawFrequencyGraph() {
 }
 
 drawFrequencyGraph();
+
+document.getElementById("exportWav").addEventListener("click", async () => {
+    const file = fileInput.files[0];
+    if (!file) {
+        alert("No file loaded !!");
+        return;
+    }
+
+    const buffer = await audioCtx.decodeAudioData(await file.arrayBuffer());
+
+    const offlineCtx = new OfflineAudioContext(
+        buffer.numberOfChannels,
+        buffer.length,
+        buffer.sampleRate
+    );
+
+    const offlineSource = offlineCtx.createBufferSource();
+    offlineSource.buffer = buffer;
+
+    // Recreating filter chain in offline context
+    const offHighpass = offlineCtx.createBiquadFilter();
+    offHighpass.type = highpassFilter.type;
+    offHighpass.frequency.value = highpassFilter.frequency.value;
+
+    const offLowpass = offlineCtx.createBiquadFilter();
+    offLowpass.type = lowpassFilter.type;
+    offLowpass.frequency.value = lowpassFilter.frequency.value;
+
+    const offBandpass = offlineCtx.createBiquadFilter();
+    offBandpass.type = bandpassFilter.type;
+    offBandpass.frequency.value = bandpassFilter.frequency.value;
+
+    const offLowshelf = offlineCtx.createBiquadFilter();
+    offLowshelf.type = lowshelfFilter.type;
+    offLowshelf.frequency.value = lowshelfFilter.frequency.value;
+    offLowshelf.gain.value = lowshelfFilter.gain.value;
+
+    const offHighshelf = offlineCtx.createBiquadFilter();
+    offHighshelf.type = highshelfFilter.type;
+    offHighshelf.frequency.value = highshelfFilter.frequency.value;
+    offHighshelf.gain.value = highshelfFilter.gain.value;
+
+    offlineSource.connect(offHighpass);
+    offHighpass.connect(offLowpass);
+    offLowpass.connect(offBandpass);
+    offBandpass.connect(offLowshelf);
+    offLowshelf.connect(offHighshelf);
+    offHighshelf.connect(offlineCtx.destination);
+
+    if (oscillatorCheck.checked) {
+        const offOscillator = offlineCtx.createOscillator();
+        offOscillator.type = oscillatorWave.value;
+        offOscillator.frequency.value = oscillatorFreq;
+        const offOscGain = offlineCtx.createGain();
+        offOscGain.gain.value = oscillatorGainAmount;
+        offOscillator.connect(offOscGain);
+        offOscGain.connect(offlineCtx.destination);
+        offOscillator.start(0);
+    }
+
+    offlineSource.start(0);
+
+    const renderedBuffer = await offlineCtx.startRendering();
+
+    const wav = audioBufferToWav(renderedBuffer);
+    const blob = new Blob([wav], { type: 'audio/wav' });
+
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'processed_audio.wav';
+    a.click();
+});

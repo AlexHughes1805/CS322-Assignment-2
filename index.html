@@ -6,6 +6,7 @@
     <title>CS322 Assignment 2</title>
     <link rel="stylesheet" href="style.css" />
     <script src="script.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/audiobuffer-to-wav@1.0.0/index.min.js"></script>
 </head>
 <body>
     <img src="banner.png" alt="Banner" id="banner">
@@ -13,6 +14,9 @@
     <div><audio id="audioPlayer" controls></audio></div>
     
     <div><input type="file" id="sound" accept="audio/*"></div>
+    <div class="parent">
+        <button id="exportWav">Export modified WAV</button>
+    </div>
     <h1>Filters</h1>
     <div class="parent">
         <div class="child">
@@ -75,8 +79,13 @@
                     <option value="triangle">Triangle</option>
             </select>
             <input type="range" max="800" min="100" value="440" id="oscillatorFreq"/>
+            
         </div>
         <div class="child"><p><span id="oscillatorValue"></span></p></div>
+        <div class="child">
+            <label for="oscillatorGain">Oscillator Gain</label>
+            <input type="range" max="1" min="0" step="0.01" value="0.5" id="oscillatorGain"/>
+        <div class="child"><p><span id="oscillatorGainValue"></span></p></div>
     </div>
 
 
