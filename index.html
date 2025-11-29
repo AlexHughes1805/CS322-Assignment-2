@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS322 Assignment 2</title>
     <link rel="stylesheet" href="style.css" />
-    <script src="script.js" defer></script>
+    
+    <script src="https://unpkg.com/tone@14.7.77/build/Tone.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/audiobuffer-to-wav@1.0.0/index.min.js"></script>
+
+    <script src="script.js" defer></script>
+
 </head>
 <body>
     <img src="banner.png" alt="Banner" id="banner">
@@ -14,9 +18,17 @@
     <div><audio id="audioPlayer" controls></audio></div>
     
     <div><input type="file" id="sound" accept="audio/*"></div>
-    <div class="parent">
-        <button id="exportWav">Export modified WAV</button>
+    <div class="visualiser-container">
+        <div class="visualiser-box">
+            <h1>Visualizer</h1>
+            <canvas id="visualiser" width="400" height="200"></canvas>
+        </div>
+        <div class="visualiser-box">
+            <h1>Frequency Bar Graph</h1>
+            <canvas id="frequencyGraph" width="400" height="200"></canvas>
+        </div>
     </div>
+    
     <h1>Filters</h1>
     <div class="parent">
         <div class="child">
@@ -88,16 +100,26 @@
         <div class="child"><p><span id="oscillatorGainValue"></span></p></div>
     </div>
 
-
-    <div class="visualiser-container">
-        <div class="visualiser-box">
-            <h1>Visualizer</h1>
-            <canvas id="visualiser" width="400" height="200"></canvas>
+    <div class="parent">
+        <div class="child">
+            <input type="checkbox" id="noise" name="effect" value="noise" />
+            <label for="noise">Noise</label>
+            <select id="noiseType">
+                <option value="white">White</option>
+                <option value="brown">Brown</option>
+                <option value="pink">Pink</option>
+            </select>
         </div>
-        <div class="visualiser-box">
-            <h1>Frequency Bar Graph</h1>
-            <canvas id="frequencyGraph" width="400" height="200"></canvas>
+        <div class="child">
+            <label for="noiseGain">Noise Volume</label>
+            <input type="range" max="1" min="0" step="0.01" value="0.1" id="noiseGain"/>
         </div>
+        <div class="child"><p><span id="noiseGainValue"></span></p></div>
     </div>
+
+    <div class="parent">
+        <button id="exportWav">Export modified WAV</button>
+    </div>
+    
 </body>
 </html> 

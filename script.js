@@ -2,7 +2,6 @@ const audio = document.getElementById("audioPlayer");
 const fileInput = document.getElementById("sound");
 
 
-
 const highpassCheck = document.getElementById("highpass");
 const lowpassCheck = document.getElementById("lowpass");
 const bandpassCheck = document.getElementById("bandpass");
@@ -46,6 +45,13 @@ var oscillatorGainAmount = Number(oscillatorGainSlide.value);
 var oscillatorGainDisplay = document.getElementById("oscillatorGainValue");
 oscillatorGainDisplay.innerHTML = oscillatorGainSlide.value;
 
+const noiseCheck = document.getElementById("noise");
+const noiseTypeSelect = document.getElementById("noiseType");
+var noiseGainSlide = document.getElementById("noiseGain");
+var noiseGainAmount = Number(noiseGainSlide.value);
+var noiseGainDisplay = document.getElementById("noiseGainValue");
+noiseGainDisplay.innerHTML = noiseGainSlide.value;
+
 // Audio context and node setup from provided biquad filter files on Moodle
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -65,6 +71,45 @@ let oscillator = null;
 const oscillatorGain = audioCtx.createGain();
 oscillatorGain.gain.value = 0;
 
+// Tone.js noise generatepr
+let noise = null;
+let toneGain = null;
+const noiseGain = audioCtx.createGain();
+noiseGain.gain.value = 0;
+Tone.setContext(audioCtx);
+
+async function startNoise() {
+    await Tone.start();
+    if (noise) {
+        noise.stop();
+        noise.dispose();
+    }
+    if (toneGain) {
+        toneGain.dispose();
+    }
+    
+    noise = new Tone.Noise(noiseTypeSelect.value);
+    toneGain = new Tone.Gain(noiseGainAmount);
+    
+    noise.connect(toneGain);
+    toneGain.connect(noiseGain);
+    noiseGain.gain.value = 1;
+    
+    noise.start();
+}
+
+function stopNoise() {
+    if (noise) {
+        noise.stop();
+        noise.dispose();
+        noise = null;
+    }
+    if (toneGain) {
+        toneGain.dispose();
+        toneGain = null;
+    }
+    noiseGain.gain.value = 0;
+}
 
 source.connect(distortion);
 distortion.connect(highpassFilter);
@@ -76,6 +121,7 @@ highshelfFilter.connect(gainNode);
 gainNode.connect(analyser);
 analyser.connect(audioCtx.destination);
 oscillatorGain.connect(gainNode);
+noiseGain.connect(gainNode);
 
 // Handle file selection
 fileInput.addEventListener("change", (event) => {
@@ -208,7 +254,32 @@ oscillatorCheck.addEventListener("change", () => {
         }
         oscillatorGain.gain.value = 0;
     }
-})
+});
+
+noiseGainSlide.addEventListener("input", () => {
+    noiseGainAmount = Number(noiseGainSlide.value);
+    noiseGainDisplay.innerHTML = noiseGainAmount;
+    if (noiseCheck.checked && toneGain) {
+        toneGain.gain.value = noiseGainAmount;
+    }
+});
+
+noiseTypeSelect.addEventListener("change", () => {
+    if (noiseCheck.checked && noise) {
+        noise.type = noiseTypeSelect.value;
+    }
+});
+
+noiseCheck.addEventListener("change", async () => {
+    if (noiseCheck.checked) {
+        if (audioCtx.state == "suspended") {
+            await audioCtx.resume();
+        }
+        await startNoise();
+    } else {
+        stopNoise();
+    }
+});
 
 function resetFilters() {
     highpassCheck.checked = false;
@@ -340,7 +411,7 @@ document.getElementById("exportWav").addEventListener("click", async () => {
     const offlineSource = offlineCtx.createBufferSource();
     offlineSource.buffer = buffer;
 
-    // Recreating filter chain in offline context
+    // Recreating filter chain in offline context (cause we can't reuse nodes)
     const offHighpass = offlineCtx.createBiquadFilter();
     offHighpass.type = highpassFilter.type;
     offHighpass.frequency.value = highpassFilter.frequency.value;
@@ -380,10 +451,20 @@ document.getElementById("exportWav").addEventListener("click", async () => {
         offOscGain.connect(offlineCtx.destination);
         offOscillator.start(0);
     }
+    if (noiseCheck.checked) {
+        Tone.setContext(offlineCtx);
+        const offNoise = new Tone.Noise(noiseTypeSelect.value);
+        const offToneGain = new Tone.Gain(noiseGainAmount);
+        offNoise.connect(offToneGain);
+        offToneGain.toDestination();
+        offNoise.start(0);
+    }
 
     offlineSource.start(0);
 
     const renderedBuffer = await offlineCtx.startRendering();
+    
+    Tone.setContext(audioCtx);
 
     const wav = audioBufferToWav(renderedBuffer);
     const blob = new Blob([wav], { type: 'audio/wav' });
