@@ -131,6 +131,14 @@
         <div class="child"><p><span id="pitchShiftValue"></span></p></div>
 
     <div class="parent">
+            <div class="child">
+                <input type="checkbox" id="compressor" name="filter" value="compressor" />
+                <label for="compressor">Dynamic Compressor</label>
+                <input type="range" max="0" min="-100" value="-50" id="compressorRatio"/>
+                <div class="child"><p><span id="compressorValue"></span></p></div>
+            </div>
+
+    <div class="parent">
         <button id="exportWav">Export modified WAV</button>
     </div>
     
