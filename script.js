@@ -52,6 +52,11 @@ var noiseGainAmount = Number(noiseGainSlide.value);
 var noiseGainDisplay = document.getElementById("noiseGainValue");
 noiseGainDisplay.innerHTML = noiseGainSlide.value;
 
+var stereoPannerSlide = document.getElementById("stereoPanner");
+var stereoPannerValue = Number(stereoPannerSlide.value);
+var stereoPannerDisplay = document.getElementById("stereoPannerValue");
+stereoPannerDisplay.innerHTML = stereoPannerSlide.value;
+
 // Audio context and node setup from provided biquad filter files on Moodle
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -59,6 +64,7 @@ const source = audioCtx.createMediaElementSource(audio);
 const analyser = audioCtx.createAnalyser();
 const distortion = audioCtx.createWaveShaper();
 const gainNode = audioCtx.createGain();
+const stereoPannerNode = audioCtx.createStereoPanner();
 
 // handle each filter independently of each other
 const highpassFilter = audioCtx.createBiquadFilter(); highpassFilter.type = "allpass";
@@ -131,10 +137,12 @@ lowpassFilter.connect(bandpassFilter);
 bandpassFilter.connect(lowshelfFilter);
 lowshelfFilter.connect(highshelfFilter);
 highshelfFilter.connect(gainNode);
-gainNode.connect(analyser);
+gainNode.connect(stereoPannerNode);
+stereoPannerNode.connect(analyser);
 analyser.connect(audioCtx.destination);
 oscillatorGain.connect(gainNode);
 noiseGain.connect(gainNode);
+
 
 // Handle file selection
 fileInput.addEventListener("change", (event) => {
@@ -292,6 +300,12 @@ noiseCheck.addEventListener("change", async () => {
     } else {
         stopNoise();
     }
+});
+
+stereoPannerSlide.addEventListener("input", () => {
+    const stereoPannerValue = Number(stereoPannerSlide.value);
+    stereoPannerNode.pan.value = stereoPannerValue;
+    stereoPannerDisplay.innerHTML = stereoPannerValue;
 });
 
 compressorSlide.addEventListener("input", () => {
@@ -472,8 +486,12 @@ document.getElementById("exportWav").addEventListener("click", async () => {
     offHighpass.connect(offLowpass);
     offLowpass.connect(offBandpass);
     offBandpass.connect(offLowshelf);
+    const offStereoPanner = offlineCtx.createStereoPanner();
+    offStereoPanner.pan.value = stereoPannerNode.pan.value;
+
     offLowshelf.connect(offHighshelf);
-    offHighshelf.connect(offlineCtx.destination);
+    offHighshelf.connect(offStereoPanner);
+    offStereoPanner.connect(offlineCtx.destination);
 
     if (oscillatorCheck.checked) {
         const offOscillator = offlineCtx.createOscillator();
@@ -482,7 +500,7 @@ document.getElementById("exportWav").addEventListener("click", async () => {
         const offOscGain = offlineCtx.createGain();
         offOscGain.gain.value = oscillatorGainAmount;
         offOscillator.connect(offOscGain);
-        offOscGain.connect(offlineCtx.destination);
+        offOscGain.connect(offStereoPanner);
         offOscillator.start(0);
     }
     if (noiseCheck.checked) {
@@ -490,7 +508,7 @@ document.getElementById("exportWav").addEventListener("click", async () => {
         const offNoise = new Tone.Noise(noiseTypeSelect.value);
         const offToneGain = new Tone.Gain(noiseGainAmount);
         offNoise.connect(offToneGain);
-        offToneGain.toDestination();
+        offToneGain.connect(offStereoPanner);
         offNoise.start(0);
     }
 
