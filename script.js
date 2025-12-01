@@ -71,6 +71,19 @@ let oscillator = null;
 const oscillatorGain = audioCtx.createGain();
 oscillatorGain.gain.value = 0;
 
+const compressorCheck = document.getElementById("compressor");
+var compressorSlide = document.getElementById("compressorRatio");
+var compressorRatio = compressorSlide.value;
+var compressorValue = document.getElementById("compressorValue");
+compressorValue.innerHTML = compressorSlide.value;
+
+const compressor = audioCtx.createDynamicsCompressor();
+compressor.threshold.setValueAtTime(compressorRatio, audioCtx.currentTime);
+compressor.knee.setValueAtTime(40, audioCtx.currentTime);
+compressor.ratio.setValueAtTime(12, audioCtx.currentTime);
+compressor.attack.setValueAtTime(0, audioCtx.currentTime);
+compressor.release.setValueAtTime(0.25, audioCtx.currentTime);
+
 // Tone.js noise generatepr
 let noise = null;
 let toneGain = null;
@@ -278,6 +291,27 @@ noiseCheck.addEventListener("change", async () => {
         await startNoise();
     } else {
         stopNoise();
+    }
+});
+
+compressorSlide.addEventListener("input", () => {
+    compressorRatio = Number(compressorSlide.value);
+    compressor.threshold.setValueAtTime(compressorRatio, audioCtx.currentTime);
+    compressorValue.innerHTML = `${compressorRatio}`;
+})
+
+compressorCheck.addEventListener("change", () => {
+    if(compressorCheck.checked)
+    {
+        highshelfFilter.disconnect();
+        highshelfFilter.connect(compressor);
+        compressor.connect(gainNode);
+    }
+    else
+    {
+        compressor.disconnect();
+        highshelfFilter.disconnect();
+        highshelfFilter.connect(gainNode);
     }
 });
 
