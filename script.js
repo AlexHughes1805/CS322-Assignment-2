@@ -57,14 +57,22 @@ var stereoPannerValue = Number(stereoPannerSlide.value);
 var stereoPannerDisplay = document.getElementById("stereoPannerValue");
 stereoPannerDisplay.innerHTML = stereoPannerSlide.value;
 
+var pitchShiftSlide = document.getElementById("pitchShift");
+var pitchShift = Number(pitchShiftSlide.value);
+var pitchShiftDisplay = document.getElementById("pitchShiftValue");
+pitchShiftDisplay.innerHTML = pitchShiftSlide.value;
+
 // Audio context and node setup from provided biquad filter files on Moodle
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+Tone.setContext(audioCtx);
+
 const source = audioCtx.createMediaElementSource(audio);
 const analyser = audioCtx.createAnalyser();
 const distortion = audioCtx.createWaveShaper();
 const gainNode = audioCtx.createGain();
 const stereoPannerNode = audioCtx.createStereoPanner();
+const pitchShiftNode = new Tone.PitchShift();
 
 // handle each filter independently of each other
 const highpassFilter = audioCtx.createBiquadFilter(); highpassFilter.type = "allpass";
@@ -82,7 +90,6 @@ let noise = null;
 let toneGain = null;
 const noiseGain = audioCtx.createGain();
 noiseGain.gain.value = 0;
-Tone.setContext(audioCtx);
 
 async function startNoise() {
     await Tone.start();
@@ -96,6 +103,7 @@ async function startNoise() {
     
     noise = new Tone.Noise(noiseTypeSelect.value);
     toneGain = new Tone.Gain(noiseGainAmount);
+
     
     noise.connect(toneGain);
     toneGain.connect(noiseGain);
@@ -117,6 +125,8 @@ function stopNoise() {
     noiseGain.gain.value = 0;
 }
 
+pitchShiftNode.pitch = pitchShift;
+
 source.connect(distortion);
 distortion.connect(highpassFilter);
 highpassFilter.connect(lowpassFilter);
@@ -124,7 +134,10 @@ lowpassFilter.connect(bandpassFilter);
 bandpassFilter.connect(lowshelfFilter);
 lowshelfFilter.connect(highshelfFilter);
 highshelfFilter.connect(gainNode);
-gainNode.connect(stereoPannerNode);
+
+Tone.connect(gainNode, pitchShiftNode);
+Tone.connect(pitchShiftNode, stereoPannerNode);
+
 stereoPannerNode.connect(analyser);
 analyser.connect(audioCtx.destination);
 oscillatorGain.connect(gainNode);
@@ -295,6 +308,12 @@ stereoPannerSlide.addEventListener("input", () => {
     stereoPannerDisplay.innerHTML = stereoPannerValue;
 });
 
+pitchShiftSlide.addEventListener("input", () => {
+    pitchShift = Number(pitchShiftSlide.value);
+    pitchShiftNode.pitch = pitchShift;
+    pitchShiftDisplay.innerHTML = pitchShift;
+});
+
 function resetFilters() {
     highpassCheck.checked = false;
     lowpassCheck.checked = false;
@@ -459,6 +478,8 @@ document.getElementById("exportWav").addEventListener("click", async () => {
     offHighshelf.connect(offStereoPanner);
     offStereoPanner.connect(offlineCtx.destination);
 
+    Tone.setContext(offlineCtx);
+
     if (oscillatorCheck.checked) {
         const offOscillator = offlineCtx.createOscillator();
         offOscillator.type = oscillatorWave.value;
@@ -470,13 +491,17 @@ document.getElementById("exportWav").addEventListener("click", async () => {
         offOscillator.start(0);
     }
     if (noiseCheck.checked) {
-        Tone.setContext(offlineCtx);
         const offNoise = new Tone.Noise(noiseTypeSelect.value);
         const offToneGain = new Tone.Gain(noiseGainAmount);
         offNoise.connect(offToneGain);
         offToneGain.connect(offStereoPanner);
         offNoise.start(0);
     }
+
+    const offPitchShift = new Tone.PitchShift();
+    offPitchShift.pitch = pitchShift;
+    Tone.connect(offStereoPanner, offPitchShift);
+    Tone.connect(offPitchShift, offlineCtx.destination);
 
     offlineSource.start(0);
 
