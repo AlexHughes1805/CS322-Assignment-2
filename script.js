@@ -511,7 +511,8 @@ document.getElementById("exportWav").addEventListener("click", async () => {
     offLowshelf.connect(offHighshelf);
     offHighshelf.connect(offStereoPanner);
     offStereoPanner.connect(offlineCtx.destination);
-
+    offGain = offlineCtx.createGain();
+    offGain.connect(offStereoPanner);
     Tone.setContext(offlineCtx);
 
     if (oscillatorCheck.checked) {
@@ -530,6 +531,15 @@ document.getElementById("exportWav").addEventListener("click", async () => {
         offNoise.connect(offToneGain);
         offToneGain.connect(offStereoPanner);
         offNoise.start(0);
+    }
+    if (compressorCheck.checked)
+    {
+        const offCompressor = offlineCtx.createDynamicsCompressor();
+        offCompressor.threshold.setValueAtTime(compressorRatio, audioCtx.currentTime);
+        offHighshelf.disconnect();
+        offHighshelf.connect(offCompressor);
+        offCompressor.connect(offGain);
+        offCompressor.start(0);
     }
 
     const offPitchShift = new Tone.PitchShift();
