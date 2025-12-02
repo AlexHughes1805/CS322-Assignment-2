@@ -7,7 +7,7 @@ body {
     margin: auto;
     width: 80%;
     text-align: center;
-    background-color: black;
+    background: linear-gradient(to bottom, #8B4500, #8B008B);
     color: white;
     font-family: Arial, sans-serif;
 }
